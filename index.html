@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Earl at Rentabus — what it does, and how it helps now</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1d2a44; --inkSoft:#3b486a; --midnight:#0f1830;
+    --paper:#f6eedb; --paperDeep:#ebe1c8; --paperEdge:#ddd1b3;
+    --butter:#f2c14e; --amber:#e0a23c; --green:#6faE84; --greenHi:#7cc295;
+    --rust:#c87b5f; --lime:#b8d94a; --teal:#2e9e8c;
+    --serif:'Fraunces',ui-serif,Georgia,serif;
+    --sans:'Inter',ui-sans-serif,system-ui,sans-serif;
+    --mono:'DM Mono',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{background:var(--midnight);font-family:var(--sans);color:var(--ink);overflow:hidden}
+  .deck{height:100vh;width:100vw;position:relative}
+  .slide{
+    position:absolute;inset:0;display:none;padding:6vh 7vw 9vh;
+    background:radial-gradient(120% 120% at 0% 0%, #fbf4e3 0%, var(--paper) 42%, var(--paperDeep) 100%);
+    flex-direction:column;animation:fade .45s cubic-bezier(.2,.7,.3,1);
+  }
+  .slide.active{display:flex}
+  .slide.center{justify-content:center}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+  .kicker{font-family:var(--mono);font-size:13px;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--inkSoft);display:flex;align-items:center;gap:12px;margin-bottom:18px}
+  .kicker::before{content:"";width:30px;height:2px;background:var(--butter);display:inline-block}
+  h1{font-family:var(--serif);font-weight:600;letter-spacing:-.03em;line-height:1.02;
+     font-size:clamp(46px,7.2vw,104px);color:var(--ink)}
+  h2{font-family:var(--serif);font-weight:500;letter-spacing:-.025em;line-height:1.04;
+     font-size:clamp(29px,4.3vw,56px);color:var(--ink);margin-bottom:4px}
+  .lede{font-size:clamp(16px,1.85vw,24px);line-height:1.5;color:var(--inkSoft);max-width:62ch;margin-top:18px}
+  .sub{font-size:clamp(14px,1.4vw,18px);line-height:1.5;color:var(--inkSoft);max-width:78ch;margin-top:10px}
+  .big-quote{font-family:var(--serif);font-weight:500;font-size:clamp(30px,5.2vw,72px);line-height:1.08;
+    letter-spacing:-.025em;color:var(--ink);max-width:18ch}
+  .accent{color:var(--teal)}
+
+  .body{margin-top:24px;flex:1;min-height:0;display:flex;flex-direction:column;justify-content:center}
+  .cols{display:grid;gap:22px}
+  .c2{grid-template-columns:1fr 1fr;align-items:center}
+  .c3{grid-template-columns:repeat(3,1fr)}
+
+  /* icons */
+  .i{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;display:block}
+  .iconbadge{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+    background:#f0e6cd;color:var(--ink);margin-bottom:6px}
+  .iconbadge.t{background:#2e9e8c1f;color:#1f7468}
+  .iconbadge.g{background:#6faE8422;color:#3c7a59}
+  .iconbadge.a{background:#e0a23c24;color:#9a6a17}
+  .iconbadge.r{background:#c87b5f20;color:#a85539}
+  .phase .iconbadge{width:48px;height:48px}
+
+  .card{background:rgba(255,250,239,.74);border:1px solid var(--paperEdge);border-radius:16px;
+    padding:20px 22px 18px;box-shadow:0 8px 26px rgba(29,42,68,.06);display:flex;flex-direction:column;gap:7px}
+  .card .ct{font-family:var(--serif);font-weight:500;font-size:clamp(18px,1.8vw,23px);letter-spacing:-.01em;color:var(--ink)}
+  .card .cb{font-size:clamp(13px,1.25vw,15.5px);line-height:1.5;color:var(--inkSoft)}
+
+  ul.feat{list-style:none;display:flex;flex-direction:column;gap:15px}
+  ul.feat li{display:flex;gap:14px;align-items:flex-start;font-size:clamp(14.5px,1.45vw,19px);line-height:1.4;color:var(--ink)}
+  ul.feat li b{font-weight:600}
+  ul.feat li span.t{color:var(--inkSoft);font-weight:400}
+  .dot{flex:none;width:11px;height:11px;border-radius:50%;margin-top:6px;background:var(--butter)}
+  .dot.g{background:var(--green)} .dot.t{background:var(--teal)} .dot.a{background:var(--amber)} .dot.r{background:var(--rust)}
+
+  .pill{font-family:var(--mono);font-size:11.5px;letter-spacing:.05em;padding:4px 11px;border-radius:999px;
+        border:1px solid var(--paperEdge);color:var(--inkSoft);white-space:nowrap}
+  .pill.solid{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+  .title-meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:30px}
+
+  /* anatomy diagram */
+  .anatomy{width:100%;max-width:920px;max-height:64vh;margin:0 auto;display:block}
+  .av-name{font-family:var(--sans);font-size:20px;fill:var(--ink)}
+  .av-val{font-family:var(--mono);font-size:19px;font-weight:600}
+  .pos{fill:#3c7a59} .neg{fill:#a85539} .neu{fill:#9a6a17}
+  .av-num{font-family:var(--serif);font-weight:500;font-size:60px;fill:var(--ink)}
+  .av-lbl{font-family:var(--mono);font-size:13px;letter-spacing:.18em;fill:var(--inkSoft)}
+  .av-cap{font-family:var(--mono);font-size:12.5px;fill:var(--inkSoft)}
+
+  /* UI mockups */
+  .mock{background:#fffaef;border:1px solid var(--paperEdge);border-radius:16px;overflow:hidden;
+    box-shadow:0 22px 48px rgba(15,24,48,.16);width:100%}
+  .mock-bar{display:flex;align-items:center;gap:7px;padding:11px 15px;border-bottom:1px solid var(--paperEdge);background:#f4ead2}
+  .mb-dot{width:9px;height:9px;border-radius:50%;background:#d8c9a6}
+  .mb-title{font-family:var(--mono);font-size:11.5px;color:var(--inkSoft);margin-left:8px;letter-spacing:.02em}
+  .mock-body{padding:18px 18px}
+  .dial{width:48px;height:48px;border-radius:50%;flex:none;
+    background:conic-gradient(var(--c) calc(var(--v)*1%), #e7dcc0 0);
+    display:flex;align-items:center;justify-content:center;position:relative}
+  .dial::before{content:'';position:absolute;inset:5px;border-radius:50%;background:#fffaef}
+  .dial span{position:relative;font-family:var(--serif);font-weight:500;font-size:16px;color:var(--ink)}
+  .prow{display:flex;align-items:center;gap:14px;padding:12px 4px;border-bottom:1px solid #efe5cd}
+  .prow:last-child{border-bottom:none}
+  .pinfo{flex:1;min-width:0}
+  .pname{font-family:var(--serif);font-weight:500;font-size:16.5px;color:var(--ink)}
+  .pmeta{font-family:var(--mono);font-size:11px;color:var(--inkSoft);margin-top:2px}
+  .demopill{font-family:var(--mono);font-weight:700;font-size:11.5px;padding:4px 10px;border-radius:999px;white-space:nowrap}
+  .wp-strong{color:#3c7a59;background:#6faE8420;border:1px solid #9cc7ad}
+  .wp-ex{color:var(--ink);background:var(--greenHi);border:1px solid var(--greenHi)}
+  .wp-amber{color:#9a6a17;background:#e0a23c22;border:1px solid #dcbf86}
+  .draft .dl{font-size:14.5px;line-height:1.5;color:var(--ink);margin-bottom:9px}
+  .draft .muted{color:var(--inkSoft)}
+  .draft-foot{display:flex;align-items:center;justify-content:space-between;margin-top:4px;padding-top:13px;border-top:1px solid #efe5cd}
+  .earl-tag{font-family:var(--mono);font-size:11px;color:#1f7468;display:flex;align-items:center;gap:6px}
+  .send{font-family:var(--mono);font-size:12px;background:var(--ink);color:var(--paper);padding:7px 18px;border-radius:999px}
+  .board{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .blabel{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:9px}
+  .bcard{background:#f7eed7;border:1px solid var(--paperEdge);border-radius:12px;padding:13px 14px;margin-bottom:10px}
+  .bcard:last-child{margin-bottom:0}
+  .bcard b{font-family:var(--serif);font-weight:500;font-size:15.5px;color:var(--ink)}
+  .bcard .pmeta{margin-top:3px}
+
+  /* win-odds pill (matches the app element) */
+  .av-pill{font-family:var(--mono);font-weight:700;font-size:20px;fill:var(--ink)}
+
+  /* email-client draft mock */
+  .email-head{padding:11px 16px;border-bottom:1px solid var(--paperEdge);background:#fbf4e3}
+  .eh-row{display:flex;gap:12px;padding:3px 0}
+  .eh-k{font-family:var(--mono);font-size:10.5px;color:var(--inkSoft);width:48px;text-transform:uppercase;letter-spacing:.08em;padding-top:2px}
+  .eh-v{font-family:var(--sans);font-size:13.5px;color:var(--ink)}
+  .toolbar{display:flex;align-items:center;justify-content:space-between;margin-top:13px;padding-top:12px;border-top:1px solid #efe5cd}
+  .tbtools{display:flex;gap:13px;color:var(--inkSoft);opacity:.7}
+  .tbtools svg{width:17px;height:17px}
+  .earl-strip{background:#2e9e8c14;border-top:1px solid #cfe3dd;padding:11px 16px;font-family:var(--mono);
+    font-size:11px;color:#1f7468;display:flex;align-items:center;gap:8px;line-height:1.3}
+  .earl-strip svg{width:14px;height:14px;flex:none}
+
+  /* "Earl pulled from" input rows */
+  .inputs{display:flex;flex-direction:column;gap:14px}
+  .inrow{display:flex;gap:13px;align-items:flex-start}
+  .inrow .ic{width:37px;height:37px;border-radius:10px;background:#2e9e8c1a;color:#1f7468;display:flex;align-items:center;justify-content:center;flex:none}
+  .inrow .ic svg{width:19px;height:19px}
+  .inrow .tx{padding-top:1px}
+  .inrow .tx b{font-family:var(--sans);font-weight:600;font-size:clamp(14.5px,1.4vw,16.5px);color:var(--ink);display:block;line-height:1.2}
+  .inrow .tx span{font-size:clamp(12px,1.2vw,13.5px);color:var(--inkSoft)}
+
+  .notthis{display:flex;flex-direction:column;gap:7px;margin-top:6px;padding:14px 16px;
+    border:1px dashed var(--paperEdge);border-radius:12px;background:rgba(255,250,239,.5)}
+  .notthis .nl{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--inkSoft)}
+  .generic{font-family:var(--sans);font-size:15px;color:var(--inkSoft);text-decoration:line-through;opacity:.75}
+
+  /* draft highlight mapping (colour = source signal) */
+  .hl{border-radius:4px;padding:1px 4px;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+  .hl.t{background:#2e9e8c1c;box-shadow:inset 0 -2px 0 #2e9e8c}
+  .hl.b{background:#f2c14e30;box-shadow:inset 0 -2px 0 #e0a23c}
+  .hl.g{background:#6faE8420;box-shadow:inset 0 -2px 0 #6faE84}
+  .hl.r{background:#c87b5f20;box-shadow:inset 0 -2px 0 #c87b5f}
+  .inrow .ic.b{background:#f2c14e2b;color:#8a6410}
+  .inrow .ic.g{background:#6faE8422;color:#3c7a59}
+  .inrow .ic.r{background:#c87b5f20;color:#a85539}
+  .inrow .ic.n{background:#e7dcc0;color:var(--inkSoft)}
+
+  /* email thread (incoming + reply) */
+  .thread{padding:15px 16px;display:flex;flex-direction:column;gap:11px}
+  .msg{border-radius:12px;padding:11px 14px}
+  .msg.in{background:#f1e7d0;border:1px solid var(--paperEdge);align-self:flex-start;max-width:92%}
+  .msg.out{background:#fff;border:1px solid #cfe3dd;box-shadow:0 6px 16px rgba(29,42,68,.07)}
+  .msg-from{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--inkSoft);margin-bottom:6px}
+  .msg-body{font-size:13.5px;line-height:1.7;color:var(--ink)}
+
+  /* tone sliders */
+  .tone-set{display:flex;flex-direction:column;gap:14px}
+  .tone-row{display:flex;flex-direction:column;gap:6px}
+  .tone-cap{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10.5px;letter-spacing:.04em;color:var(--inkSoft)}
+  .tone-track{height:7px;background:#e7dcc0;border-radius:999px;position:relative}
+  .tone-knob{position:absolute;top:50%;width:16px;height:16px;border-radius:50%;background:var(--teal);border:2px solid #fffaef;transform:translate(-50%,-50%);box-shadow:0 2px 5px rgba(29,42,68,.22)}
+
+  /* sales workflow */
+  .flow{position:relative;display:flex;justify-content:space-between;align-items:flex-start;gap:4px}
+  .flow::before{content:'';position:absolute;left:9%;right:9%;top:17px;height:2px;background:var(--paperEdge)}
+  .flow-step{position:relative;text-align:center;flex:1}
+  .flow-node{width:34px;height:34px;border-radius:50%;background:#e7f1ee;border:1.5px solid #8fcabf;color:#1f7468;display:flex;align-items:center;justify-content:center;margin:0 auto 7px;font-family:var(--mono);font-size:12.5px}
+  .flow-lbl{font-size:11px;color:var(--ink);line-height:1.15}
+  .tchips{display:flex;flex-direction:column;gap:4px;align-items:center;margin-top:7px}
+  .tchip{font-family:var(--mono);font-size:8.5px;letter-spacing:.02em;color:#1f7468;background:#2e9e8c14;border:1px solid #bfe0d8;border-radius:999px;padding:2px 7px;white-space:nowrap}
+
+  /* knowledge-base completeness */
+  .kb-row{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+  .kb-lbl{width:70px;font-size:12px;color:var(--ink)}
+  .kb-track{flex:1;height:8px;background:#e7dcc0;border-radius:999px;overflow:hidden}
+  .kb-fill{height:100%;background:var(--green);border-radius:999px}
+  .kb-pct{font-family:var(--mono);font-size:10.5px;color:var(--inkSoft);width:32px;text-align:right}
+  .kb-foot{font-family:var(--mono);font-size:11px;color:#1f7468;margin-top:10px;display:flex;align-items:center;gap:7px}
+
+  /* insights dashboard */
+  .dash{padding:16px 18px}
+  .dash-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin-bottom:13px}
+  .dstat{background:#f7eed7;border:1px solid var(--paperEdge);border-radius:11px;padding:11px 12px}
+  .dstat .dv{font-family:var(--serif);font-weight:500;font-size:24px;color:var(--ink);line-height:1}
+  .dstat .dl{font-family:var(--mono);font-size:9.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--inkSoft);margin-top:4px}
+  .dash-grid{display:grid;grid-template-columns:1.25fr 1fr;gap:13px}
+  .panel{background:#fff;border:1px solid var(--paperEdge);border-radius:12px;padding:13px 14px}
+  .panel-t{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--inkSoft);margin-bottom:11px}
+  .cohort .crow{display:flex;align-items:center;gap:9px;margin-bottom:9px}
+  .cohort .clbl{width:78px;font-size:11.5px;color:var(--ink)}
+  .cohort .ctrack{flex:1;height:9px;background:#eee2c8;border-radius:999px;overflow:hidden}
+  .cohort .cfill{height:100%;border-radius:999px;background:var(--green)}
+  .cohort .cpct{font-family:var(--mono);font-size:10.5px;color:var(--inkSoft);width:30px;text-align:right}
+  .chartbars{display:flex;align-items:flex-end;gap:7px;height:104px;padding-top:6px}
+  .chartbars .cbar{flex:1;background:var(--teal);border-radius:4px 4px 0 0;opacity:.85}
+  .barlabels{display:flex;justify-content:space-between;font-family:var(--mono);font-size:9.5px;color:var(--inkSoft);margin-top:6px}
+
+  /* draft-with-earl panel */
+  .earl-panel{background:#2e9e8c10;border:1px solid #cfe3dd;border-radius:12px;padding:11px 13px;display:flex;flex-direction:column;gap:9px}
+  .ep-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .draftbtn{display:inline-flex;align-items:center;gap:7px;background:var(--ink);color:var(--paper);font-family:var(--mono);font-size:12px;padding:7px 13px;border-radius:999px}
+  .draftbtn svg{width:14px;height:14px;stroke:var(--paper)}
+  .conf{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11.5px;color:#3c7a59}
+  .confdial{width:32px;height:32px;border-radius:50%;background:conic-gradient(var(--green) 88%, #e7dcc0 0);display:flex;align-items:center;justify-content:center;position:relative;flex:none}
+  .confdial::before{content:'';position:absolute;inset:4px;border-radius:50%;background:#fffaef}
+  .confdial i{position:relative;font-style:normal;font-family:var(--serif);font-weight:500;font-size:13px;color:var(--ink)}
+  .ep-understood{font-size:12.5px;line-height:1.5;color:var(--ink)}
+  .ep-understood b{color:#1f7468}
+
+  /* branching workflow */
+  .flow-cap{font-family:var(--mono);font-size:10px;letter-spacing:.04em;text-transform:uppercase;color:#9a6a17;margin:16px 0 9px}
+  .flow.branch::before{border-top:2px dashed #d8b66a;background:none;height:0;left:8%;right:8%}
+  .flow.branch .flow-node{background:#f7ecd2;border-color:#dcbf86;color:#9a6a17}
+  .flow.branch .flow-lbl{color:var(--inkSoft)}
+
+  /* knowledge-base rings */
+  .faqfeed{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+  .faqchip{font-family:var(--mono);font-size:9.5px;color:var(--inkSoft);background:#f0e6cd;border:1px solid var(--paperEdge);border-radius:999px;padding:3px 8px;white-space:nowrap}
+  .kbgrid{display:grid;grid-template-columns:1fr 1fr;gap:11px 12px}
+  .kbcell{display:flex;align-items:center;gap:9px}
+  .kbring{width:38px;height:38px;border-radius:50%;flex:none;background:conic-gradient(var(--c) calc(var(--v)*1%), #e7dcc0 0);display:flex;align-items:center;justify-content:center;position:relative}
+  .kbring::before{content:'';position:absolute;inset:4px;border-radius:50%;background:#fffaef}
+  .kbring i{position:relative;font-style:normal;font-family:var(--serif);font-weight:500;font-size:11.5px;color:var(--ink)}
+  .kbname{font-size:11px;color:var(--ink);line-height:1.15}
+
+  /* richer insights dashboard */
+  .noticed{background:#f2c14e1f;border:1px solid #e7cf8f;border-radius:10px;padding:9px 13px;font-family:var(--sans);font-size:12.5px;color:#8a6410;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+  .noticed svg{width:15px;height:15px;flex:none;color:#b9821f}
+  .dash-stats4{display:grid;grid-template-columns:repeat(4,1fr);gap:11px;margin-bottom:13px}
+  .dash-grid2{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:13px}
+  .funnel .frow{display:flex;align-items:center;gap:9px;margin-bottom:10px}
+  .funnel .flbl{width:64px;font-size:11.5px;color:var(--ink)}
+  .funnel .ftrack{flex:1;height:13px;background:#eee2c8;border-radius:5px;overflow:hidden}
+  .funnel .ffill{height:100%;background:var(--green);border-radius:5px}
+  .funnel .fval{font-family:var(--mono);font-size:11px;color:var(--inkSoft);width:40px;text-align:right}
+  .winrate-big{margin-top:6px;display:flex;align-items:baseline;gap:8px}
+  .winrate-big .wb{font-family:var(--serif);font-weight:500;font-size:30px;color:var(--teal);line-height:1}
+  .winrate-big .wl{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--inkSoft)}
+
+  /* even visual alignment inside cards */
+  .viz{flex:1;display:flex;flex-direction:column;justify-content:center;margin-top:14px}
+
+  /* plug-in: connect */
+  .connect{display:flex;flex-direction:column;align-items:center;gap:16px}
+  .cline{display:flex;align-items:center;justify-content:center}
+  .cnode{font-family:var(--serif);font-weight:500;font-size:15px;color:var(--ink);background:#fffaef;border:1px solid var(--paperEdge);border-radius:11px;padding:11px 17px;box-shadow:0 4px 12px rgba(29,42,68,.06)}
+  .cnode.earl{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+  .cwire{flex:0 0 48px;height:2px;background:var(--paperEdge);position:relative}
+  .cwire::after{content:'';position:absolute;left:50%;top:50%;width:9px;height:9px;border-radius:50%;background:var(--teal);transform:translate(-50%,-50%)}
+  .cok{font-family:var(--mono);font-size:11.5px;color:#1f7468;display:flex;align-items:center;gap:6px}
+  .cok svg{width:14px;height:14px}
+
+  /* plug-in: history list */
+  .histlist{display:flex;flex-direction:column;gap:9px}
+  .hrow{display:flex;align-items:center;gap:11px}
+  .havatar{width:22px;height:22px;border-radius:50%;background:#e3d6b9;flex:none}
+  .hlines{flex:1;display:flex;flex-direction:column;gap:5px}
+  .hl1{height:7px;width:58%;background:#e3d6b9;border-radius:4px}
+  .hl2{height:6px;width:86%;background:#efe6cf;border-radius:4px}
+  .histfoot{font-family:var(--mono);font-size:11px;color:#1f7468;margin-top:8px}
+
+  /* plug-in: grouping */
+  .grouping{display:flex;flex-direction:column;align-items:center;gap:10px}
+  .gmails{display:flex;gap:8px}
+  .gchip{width:52px;height:34px;border-radius:8px;background:#f1e7d0;border:1px solid var(--paperEdge)}
+  .garrow{color:var(--inkSoft);font-size:17px;line-height:.6}
+  .gdeal{font-family:var(--serif);font-weight:500;font-size:15px;color:var(--ink);background:#2e9e8c12;border:1px solid #bfe0d8;border-radius:11px;padding:10px 20px}
+
+  /* neutral highlight (tone & style) */
+  .hl.n{background:#1d2a440f;box-shadow:inset 0 -2px 0 #9aa3b5}
+  .readyline{font-family:var(--mono);font-size:11px;color:#1f7468;display:flex;align-items:center;gap:7px;margin-top:12px;padding-top:11px;border-top:1px solid #efe5cd}
+  .readyline svg{width:14px;height:14px;flex:none}
+  .ctx{font-family:var(--mono);font-size:11px;color:#a85539;display:flex;align-items:center;gap:7px;margin-bottom:12px}
+  .ctx svg{width:14px;height:14px;flex:none}
+
+  /* interactive build reveal */
+  .build{display:none}
+  .build.show{display:block;animation:fade .42s cubic-bezier(.2,.7,.3,1)}
+  .draftbtn{cursor:pointer}
+  .draftbtn.standalone{align-self:flex-start;margin:2px 0}
+  .hint{font-family:var(--mono);font-size:10.5px;color:var(--inkSoft);margin-top:8px;display:flex;align-items:center;gap:7px}
+
+  /* clickable source rows that light up the reply */
+  .src-row{cursor:pointer;border-radius:12px;padding:7px;margin:-7px;transition:background .18s}
+  .src-row:hover{background:rgba(255,250,239,.7)}
+  .src-row.active{background:rgba(255,250,239,.96);box-shadow:inset 0 0 0 1px var(--paperEdge)}
+  .why{display:none;font-size:12.5px;line-height:1.45;color:var(--inkSoft);margin-top:8px;padding-left:11px;border-left:2px solid var(--paperEdge)}
+  .src-row.active .why{display:block;animation:fade .3s}
+  .src-row[data-src="t"] .why{border-left-color:#2e9e8c}
+  .src-row[data-src="b"] .why{border-left-color:#e0a23c}
+  .src-row[data-src="g"] .why{border-left-color:#6faE84}
+  .src-row[data-src="r"] .why{border-left-color:#c87b5f}
+  .src-row[data-src="n"] .why{border-left-color:#9aa3b5}
+  .src-hint{font-family:var(--mono);font-size:10.5px;color:var(--inkSoft);margin-top:16px;display:flex;align-items:center;gap:7px}
+  /* reply marks: invisible until their source is activated */
+  .mk{border-radius:4px;padding:1px 2px;transition:background .25s,box-shadow .25s,padding .25s}
+  .mk.on{padding:1px 4px}
+  .mk[data-src="t"].on{background:#2e9e8c1c;box-shadow:inset 0 -2px 0 #2e9e8c}
+  .mk[data-src="b"].on{background:#f2c14e30;box-shadow:inset 0 -2px 0 #e0a23c}
+  .mk[data-src="g"].on{background:#6faE8420;box-shadow:inset 0 -2px 0 #6faE84}
+  .mk[data-src="r"].on{background:#c87b5f20;box-shadow:inset 0 -2px 0 #c87b5f}
+  .mk[data-src="n"].on{background:#1d2a440f;box-shadow:inset 0 -2px 0 #9aa3b5}
+
+  /* architecture */
+  .arch{display:flex;flex-direction:column;gap:10px;width:100%;max-width:1000px;margin:0 auto}
+  .alayer{display:grid;grid-template-columns:118px 1fr;gap:16px;align-items:center}
+  .alabel{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--inkSoft);text-align:right}
+  .arow{display:flex;gap:10px}
+  .anode{flex:1;background:#fffaef;border:1px solid var(--paperEdge);border-radius:12px;padding:12px 14px;box-shadow:0 4px 12px rgba(29,42,68,.05)}
+  .anode .ant{font-family:var(--serif);font-weight:500;font-size:15.5px;color:var(--ink)}
+  .anode .and{font-size:12px;color:var(--inkSoft);margin-top:2px;line-height:1.35}
+  .anode.dark{background:var(--ink);border-color:var(--ink)}
+  .anode.dark .ant{color:var(--paper)} .anode.dark .and{color:rgba(246,238,219,.66)}
+  .anode.accent{background:var(--butter);border-color:var(--butter)}
+  .anode.accent .ant{color:var(--ink)} .anode.accent .and{color:#7a5e16}
+  .aarrow{text-align:center;color:#cbbd9b;font-size:14px;line-height:.5;margin:-1px 0}
+
+  /* three-move strip */
+  .phases{display:grid;grid-template-columns:repeat(3,1fr);align-items:stretch}
+  .phase{padding:28px 26px;border:1px solid var(--paperEdge);background:rgba(255,250,239,.7);display:flex;flex-direction:column;gap:11px}
+  .phase:first-child{border-radius:16px 0 0 16px}
+  .phase:last-child{border-radius:0 16px 16px 0}
+  .phase:not(:last-child){border-right:none}
+  .phase .pn{font-family:var(--mono);font-size:12px;letter-spacing:.16em;color:var(--butter)}
+  .phase .ph{font-family:var(--serif);font-weight:500;font-size:clamp(22px,2.3vw,30px);letter-spacing:-.01em;color:var(--ink)}
+  .phase .pd{font-size:clamp(13.5px,1.3vw,16px);line-height:1.5;color:var(--inkSoft)}
+
+  .footnote{font-family:var(--mono);font-size:11.5px;color:var(--inkSoft);letter-spacing:.03em;margin-top:14px;text-align:center}
+
+  .chrome{position:fixed;bottom:0;left:0;right:0;height:56px;display:flex;align-items:center;
+    justify-content:space-between;padding:0 22px;z-index:20;pointer-events:none}
+  .brand{font-family:var(--serif);font-weight:600;font-size:18px;color:var(--paper);letter-spacing:-.02em;
+    display:flex;align-items:center;gap:9px;opacity:.9}
+  .brand .blip{width:9px;height:9px;border-radius:50%;background:var(--butter)}
+  .nav{display:flex;align-items:center;gap:14px;pointer-events:auto}
+  .dots{display:flex;gap:7px}
+  .nd-dot{width:8px;height:8px;border-radius:50%;background:rgba(246,238,219,.28);cursor:pointer;transition:.2s}
+  .nd-dot.on{background:var(--butter);transform:scale(1.25)}
+  .arrow{font-family:var(--mono);font-size:13px;color:var(--paper);background:rgba(246,238,219,.12);
+    border:1px solid rgba(246,238,219,.2);border-radius:999px;width:34px;height:34px;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;transition:.18s}
+  .arrow:hover{background:rgba(246,238,219,.22)}
+  .counter{font-family:var(--mono);font-size:12px;color:rgba(246,238,219,.6);min-width:52px;text-align:right}
+  @media (max-width:860px){.c2,.c3,.phases,.board{grid-template-columns:1fr}.phase{border-radius:16px!important;border:1px solid var(--paperEdge)!important}}
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+  <!-- 1 — TITLE -->
+  <section class="slide active center">
+    <div class="kicker">Earl at Rentabus · what it does</div>
+    <h1>What Earl does<br>for Rentabus,<br>and how it helps now.</h1>
+    <div class="lede">Earl reads info@rentabus.co.nz, learns how we sell, and works the pipeline alongside the team, so the right enquiries get the right attention at the right time.</div>
+    <div class="title-meta">
+      <span class="pill solid">Plug in</span>
+      <span class="pill">Understand</span>
+      <span class="pill">Win</span>
+    </div>
+  </section>
+
+  <!-- 2 — THE PROBLEM -->
+  <section class="slide">
+    <div class="kicker">The problem</div>
+    <h2>Right now, it's all on you</h2>
+    <div class="sub">You already know your customers. But the follow-up game is manual, and it's where good deals quietly die.</div>
+    <div class="body cols c2" style="align-items:stretch">
+      <div class="card">
+        <div class="iconbadge r"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3.2 2"/></svg></div>
+        <div class="ct">Replies take real time</div>
+        <div class="cb">Every proper response means digging back through the history to remember where things were left.</div>
+      </div>
+      <div class="card">
+        <div class="iconbadge r"><svg class="i" viewBox="0 0 24 24"><path d="M4 7h4l9 10h3M4 17h4l3-3M16 5l4 2-4 2M16 15l4 2-4 2"/></svg></div>
+        <div class="ct">Follow-ups are sporadic</div>
+        <div class="cb">They happen when you find a spare moment, not when the deal actually needs chasing.</div>
+      </div>
+      <div class="card">
+        <div class="iconbadge r"><svg class="i" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4"/><circle cx="9" cy="9" r="1.1" fill="currentColor" stroke="none"/><circle cx="15" cy="15" r="1.1" fill="currentColor" stroke="none"/><circle cx="15" cy="9" r="1.1" fill="currentColor" stroke="none"/><circle cx="9" cy="15" r="1.1" fill="currentColor" stroke="none"/></svg></div>
+        <div class="ct">You back deals on a hunch</div>
+        <div class="cb">Effort goes where the vibe says, not where the odds and the dollars actually are.</div>
+      </div>
+      <div class="card">
+        <div class="iconbadge r"><svg class="i" viewBox="0 0 24 24"><path d="M4 7l5 6 4-3 7 7M21 17h-4M21 17v-4"/></svg></div>
+        <div class="ct">Deals die quietly</div>
+        <div class="cb">The ones that drift never raise a hand. By the time you notice, they've already gone cold.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 — THE PROMISE -->
+  <section class="slide center">
+    <div class="kicker">The fix</div>
+    <div class="big-quote">Everything we need to win more bookings is already in our inbox. <span class="accent">It's just buried.</span></div>
+    <div class="sub">Earl digs it out, learns how you sell, and makes sure no good deal ever goes quiet, with almost no effort from you.</div>
+  </section>
+
+  <!-- 4 — THE MAGIC IN THREE MOVES -->
+  <section class="slide">
+    <div class="kicker">The magic, in three moves</div>
+    <h2>Plug in. Understand. Win.</h2>
+    <div class="body">
+      <div class="phases">
+        <div class="phase">
+          <div class="iconbadge"><svg class="i" viewBox="0 0 24 24"><path d="M9 2v6M15 2v6M7 8h10v2a5 5 0 0 1-10 0V8zM12 15v7"/></svg></div>
+          <div class="pn">01</div>
+          <div class="ph">Plug in</div>
+          <div class="pd">Connect your inbox. Earl reads your whole history. No data entry, no forms, no migration.</div>
+        </div>
+        <div class="phase">
+          <div class="iconbadge t"><svg class="i" viewBox="0 0 24 24"><path d="M9 17h6M10 20h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.45.5 1.1.5 1.6h6c0-.5-.1-1.15.5-1.6A6 6 0 0 0 12 3z"/></svg></div>
+          <div class="pn">02</div>
+          <div class="ph">Understand</div>
+          <div class="pd">It learns your tone, your workflow, your FAQs, and what actually wins your deals.</div>
+        </div>
+        <div class="phase">
+          <div class="iconbadge g"><svg class="i" viewBox="0 0 24 24"><path d="M7 4h10v4a5 5 0 0 1-10 0V4z"/><path d="M7 5H4v1a3 3 0 0 0 3 3M17 5h3v1a3 3 0 0 1-3 3"/><path d="M9.5 14h5M8 20h8M12 14v3"/></svg></div>
+          <div class="pn">03</div>
+          <div class="ph">Win</div>
+          <div class="pd">It drafts your replies, ranks your pipeline, and flags the deals about to slip away.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 — PLUG IN -->
+  <section class="slide">
+    <div class="kicker">Step one</div>
+    <h2>Plug into your inbox</h2>
+    <div class="sub">One connection. Earl quietly reads back through every customer email you've ever sent and received.</div>
+    <div class="body cols c3" style="align-items:stretch">
+      <div class="card">
+        <div class="ct">Zero data entry</div>
+        <div class="cb">No CRM, no forms. Your inbox is the source of truth, and it's already full.</div>
+        <div class="viz"><div class="connect">
+          <div class="cline"><span class="cnode">Your inbox</span><span class="cwire"></span><span class="cnode earl">Earl</span></div>
+          <div class="cok"><svg class="i" viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/></svg> Connected in one click</div>
+        </div></div>
+      </div>
+      <div class="card">
+        <div class="ct">Your whole history</div>
+        <div class="cb">Every email, going back years, read and understood in context.</div>
+        <div class="viz"><div class="histlist">
+          <div class="hrow"><span class="havatar"></span><div class="hlines"><div class="hl1"></div><div class="hl2"></div></div></div>
+          <div class="hrow"><span class="havatar"></span><div class="hlines"><div class="hl1"></div><div class="hl2"></div></div></div>
+          <div class="hrow"><span class="havatar"></span><div class="hlines"><div class="hl1"></div><div class="hl2"></div></div></div>
+          <div class="histfoot">2019 → today · 12,480 emails read</div>
+        </div></div>
+      </div>
+      <div class="card">
+        <div class="ct">Working in the background</div>
+        <div class="cb">The messy pile becomes clean, deduped deals while you carry on.</div>
+        <div class="viz"><div class="grouping">
+          <div class="gmails"><span class="gchip"></span><span class="gchip"></span><span class="gchip"></span></div>
+          <div class="garrow">↓</div>
+          <div class="gdeal">1 deal</div>
+        </div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 — UNDERSTANDS YOUR BUSINESS -->
+  <section class="slide">
+    <div class="kicker">Step two · It learns your business</div>
+    <h2>It learns how you actually sell</h2>
+    <div class="sub">Earl doesn't make you change how you work. It studies how you already do it.</div>
+    <div class="body cols c3" style="align-items:stretch">
+      <div class="card">
+        <div class="ct">Your tone</div>
+        <div class="cb" style="margin-bottom:8px">Learned from your sent mail, so drafts sound like you.</div>
+        <div class="viz"><div class="tone-set">
+          <div class="tone-row"><div class="tone-cap"><span>Casual</span><span>Formal</span></div><div class="tone-track"><div class="tone-knob" style="left:34%"></div></div></div>
+          <div class="tone-row"><div class="tone-cap"><span>Brief</span><span>Detailed</span></div><div class="tone-track"><div class="tone-knob" style="left:40%"></div></div></div>
+          <div class="tone-row"><div class="tone-cap"><span>Direct</span><span>Warm</span></div><div class="tone-track"><div class="tone-knob" style="left:72%"></div></div></div>
+          <div class="tone-row"><div class="tone-cap"><span>Professional</span><span>Friendly</span></div><div class="tone-track"><div class="tone-knob" style="left:64%"></div></div></div>
+          <div class="tone-row"><div class="tone-cap"><span>Reserved</span><span>Enthusiastic</span></div><div class="tone-track"><div class="tone-knob" style="left:58%"></div></div></div>
+          <div class="tone-row"><div class="tone-cap"><span>Soft</span><span>Assertive</span></div><div class="tone-track"><div class="tone-knob" style="left:46%"></div></div></div>
+        </div></div>
+      </div>
+      <div class="card">
+        <div class="ct">Your workflow</div>
+        <div class="cb" style="margin-bottom:8px">It maps your steps and the templates you reach for.</div>
+        <div class="viz"><div class="flow">
+          <div class="flow-step"><div class="flow-node">1</div><div class="flow-lbl">Enquiry</div><div class="tchips"><span class="tchip">Auto reply</span></div></div>
+          <div class="flow-step"><div class="flow-node">2</div><div class="flow-lbl">Acknowledge</div><div class="tchips"><span class="tchip">Got it</span></div></div>
+          <div class="flow-step"><div class="flow-node">3</div><div class="flow-lbl">Quote</div><div class="tchips"><span class="tchip">Standard</span><span class="tchip">Detailed</span></div></div>
+          <div class="flow-step"><div class="flow-node">4</div><div class="flow-lbl">Follow up</div><div class="tchips"><span class="tchip">Nudge</span><span class="tchip">Check in</span></div></div>
+          <div class="flow-step"><div class="flow-node">5</div><div class="flow-lbl">Negotiate</div><div class="tchips"><span class="tchip">Counter</span></div></div>
+          <div class="flow-step"><div class="flow-node">✓</div><div class="flow-lbl">Win</div><div class="tchips"><span class="tchip">Confirm</span><span class="tchip">Invoice</span></div></div>
+        </div></div>
+      </div>
+      <div class="card">
+        <div class="ct">Your knowledge</div>
+        <div class="cb" style="margin-bottom:11px">Your FAQs, sorted and scored across every area Earl draws on.</div>
+        <div class="viz"><div class="faqfeed">
+          <span class="faqchip">"Deposit?"</span>
+          <span class="faqchip">"Airport runs?"</span>
+          <span class="faqchip">"Cancellation?"</span>
+          <span class="faqchip">+321</span>
+          <span style="font-family:var(--mono);font-size:11px;color:#1f7468">324 FAQs ↓</span>
+        </div>
+        <div class="kbgrid">
+          <div class="kbcell"><div class="kbring" style="--v:95;--c:var(--green)"><i>95</i></div><div class="kbname">Company overview</div></div>
+          <div class="kbcell"><div class="kbring" style="--v:88;--c:var(--green)"><i>88</i></div><div class="kbname">Services</div></div>
+          <div class="kbcell"><div class="kbring" style="--v:82;--c:var(--green)"><i>82</i></div><div class="kbname">Booking process</div></div>
+          <div class="kbcell"><div class="kbring" style="--v:92;--c:var(--green)"><i>92</i></div><div class="kbname">Pricing</div></div>
+          <div class="kbcell"><div class="kbring" style="--v:74;--c:var(--amber)"><i>74</i></div><div class="kbname">Cancellation</div></div>
+          <div class="kbcell"><div class="kbring" style="--v:70;--c:var(--amber)"><i>70</i></div><div class="kbname">Other policies</div></div>
+          <div class="kbcell"><div class="kbring" style="--v:61;--c:var(--rust)"><i>61</i></div><div class="kbname">What we don't do</div></div>
+          <div class="kbcell"><div class="kbring" style="--v:100;--c:var(--teal)"><i>100</i></div><div class="kbname">Agent rules</div></div>
+        </div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 — ANATOMY OF WIN PROBABILITY -->
+  <section class="slide">
+    <div class="kicker">Step two · It learns your deals</div>
+    <h2>Every deal gets a win probability</h2>
+    <div class="sub">Earl learns from your won-and-lost history what makes a deal close, then scores each live one. Now you know which deals are genuinely worth chasing, instead of guessing. Here's what goes into that number.</div>
+    <div class="body">
+      <svg class="anatomy" viewBox="0 0 1000 540" preserveAspectRatio="xMidYMid meet">
+        <g stroke-width="2.5" fill="none" opacity="0.5">
+          <line x1="340" y1="80" x2="500" y2="270" stroke="#6faE84"/>
+          <line x1="340" y1="215" x2="500" y2="270" stroke="#6faE84"/>
+          <line x1="340" y1="372" x2="500" y2="270" stroke="#6faE84"/>
+          <line x1="660" y1="120" x2="500" y2="270" stroke="#c87b5f"/>
+          <line x1="660" y1="300" x2="500" y2="270" stroke="#e0a23c"/>
+          <line x1="660" y1="440" x2="500" y2="270" stroke="#c87b5f"/>
+        </g>
+        <g>
+          <circle cx="340" cy="80" r="5" fill="#6faE84"/><circle cx="340" cy="215" r="5" fill="#6faE84"/><circle cx="340" cy="372" r="5" fill="#6faE84"/>
+          <circle cx="660" cy="120" r="5" fill="#c87b5f"/><circle cx="660" cy="300" r="5" fill="#e0a23c"/><circle cx="660" cy="440" r="5" fill="#c87b5f"/>
+        </g>
+        <circle cx="500" cy="270" r="100" fill="#fffaef" stroke="#e7dcc0" stroke-width="2"/>
+        <text x="500" y="240" text-anchor="middle" class="av-lbl">WIN ODDS</text>
+        <rect x="356" y="256" width="288" height="52" rx="26" fill="#7cc295"/>
+        <text x="500" y="289" text-anchor="middle" class="av-pill">62% likely · 4.8× avg</text>
+        <text x="330" y="87" text-anchor="end"><tspan class="av-name">Repeat customer</tspan><tspan class="av-val pos" dx="12">↑↑</tspan></text>
+        <text x="330" y="222" text-anchor="end"><tspan class="av-name">Corporate event</tspan><tspan class="av-val pos" dx="12">↑</tspan></text>
+        <text x="330" y="379" text-anchor="end"><tspan class="av-name">Booked 6 weeks out</tspan><tspan class="av-val pos" dx="12">↑</tspan></text>
+        <text x="670" y="127" text-anchor="start"><tspan class="av-val neg">↓</tspan><tspan class="av-name" dx="12">Premium price point</tspan></text>
+        <text x="670" y="307" text-anchor="start"><tspan class="av-val neu">→</tspan><tspan class="av-name" dx="12">Large group</tspan></text>
+        <text x="670" y="447" text-anchor="start"><tspan class="av-val neg">↓</tspan><tspan class="av-name" dx="12">Peak season demand</tspan></text>
+        <text x="500" y="522" text-anchor="middle" class="av-cap">Earl shows the why behind every number.</text>
+      </svg>
+    </div>
+  </section>
+
+  <!-- 8 — ANATOMY OF HEALTH SCORE -->
+  <section class="slide">
+    <div class="kicker">Step two · It reads the room</div>
+    <h2>Every deal gets a live health score</h2>
+    <div class="sub">Win probability is about the deal's profile. The health score is about the conversation: is it warm, cooling, or about to slip? Earl reads every signal in the thread and rolls it into one number you can trust at a glance. Here's what moves it.</div>
+    <div class="body">
+      <svg class="anatomy" viewBox="0 0 1000 540" preserveAspectRatio="xMidYMid meet">
+        <g stroke-width="2.5" fill="none" opacity="0.5">
+          <line x1="340" y1="72" x2="500" y2="270" stroke="#6faE84"/>
+          <line x1="340" y1="180" x2="500" y2="270" stroke="#6faE84"/>
+          <line x1="340" y1="362" x2="500" y2="270" stroke="#6faE84"/>
+          <line x1="340" y1="468" x2="500" y2="270" stroke="#6faE84"/>
+          <line x1="660" y1="150" x2="500" y2="270" stroke="#c87b5f"/>
+          <line x1="660" y1="392" x2="500" y2="270" stroke="#c87b5f"/>
+        </g>
+        <g>
+          <circle cx="340" cy="72" r="5" fill="#6faE84"/><circle cx="340" cy="180" r="5" fill="#6faE84"/><circle cx="340" cy="362" r="5" fill="#6faE84"/><circle cx="340" cy="468" r="5" fill="#6faE84"/>
+          <circle cx="660" cy="150" r="5" fill="#c87b5f"/><circle cx="660" cy="392" r="5" fill="#c87b5f"/>
+        </g>
+        <circle cx="500" cy="270" r="86" fill="#fffaef" stroke="#e7dcc0" stroke-width="11"/>
+        <circle cx="500" cy="270" r="86" fill="none" stroke="#6faE84" stroke-width="11" stroke-linecap="round" stroke-dasharray="454 541" transform="rotate(-90 500 270)"/>
+        <text x="500" y="248" text-anchor="middle" class="av-lbl">HEALTH</text>
+        <text x="500" y="296" text-anchor="middle" class="av-num">84</text>
+        <text x="500" y="320" text-anchor="middle" class="av-cap">out of 100</text>
+        <text x="330" y="79" text-anchor="end"><tspan class="av-name">Repeat customer</tspan><tspan class="av-val pos" dx="12">+15</tspan></text>
+        <text x="330" y="187" text-anchor="end"><tspan class="av-name">Asking how to pay</tspan><tspan class="av-val pos" dx="12">+10</tspan></text>
+        <text x="330" y="369" text-anchor="end"><tspan class="av-name">5 replies from them</tspan><tspan class="av-val pos" dx="12">+8</tspan></text>
+        <text x="330" y="475" text-anchor="end"><tspan class="av-name">Warm, friendly tone</tspan><tspan class="av-val pos" dx="12">+5</tspan></text>
+        <text x="670" y="157" text-anchor="start"><tspan class="av-val neg">−6</tspan><tspan class="av-name" dx="12">Price concern raised</tspan></text>
+        <text x="670" y="399" text-anchor="start"><tspan class="av-val neg">−4</tspan><tspan class="av-name" dx="12">2 days quiet</tspan></text>
+        <text x="500" y="522" text-anchor="middle" class="av-cap">Every point is traceable to a reason.</text>
+      </svg>
+    </div>
+  </section>
+
+  <!-- 9 — TRANSITION / PAYOFF -->
+  <section class="slide center">
+    <div class="kicker">What all of this is for</div>
+    <div class="big-quote">It all adds up to one thing: <span class="accent">Rentabus wins more bookings.</span></div>
+    <div class="sub">More responsive to your customers, with far less effort. Here's how that shows up day to day.</div>
+  </section>
+
+  <!-- 10 — PAYOFF: DRAFTS REPLIES IN THE INBOX -->
+  <section class="slide">
+    <div class="kicker">What you get · 1</div>
+    <h2>Drafts replies right in your inbox</h2>
+    <div class="sub">When a customer writes back, the reply is already waiting. Every line is built from something Earl knows, shown here by colour.</div>
+    <div class="body cols c2">
+      <div class="inputs">
+        <div class="inrow src-row" data-src="t" onclick="toggleSrc('t')"><div class="ic"><svg class="i" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg></div><div class="tx"><b>Thread history</b><span>Reads the whole conversation, across every email</span><div class="why">She asked about the airport pickup earlier in the thread, so Earl carried it into the reply.</div></div></div>
+        <div class="inrow src-row" data-src="b" onclick="toggleSrc('b')"><div class="ic b"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-4 3.4-6 7-6s7 2 7 6"/></svg></div><div class="tx"><b>Customer background</b><span>Past deals, repeat status, what they care about</span><div class="why">She's a returning customer from last year's school trip, so Earl greeted her warmly and held the same rate.</div></div></div>
+        <div class="inrow src-row" data-src="g" onclick="toggleSrc('g')"><div class="ic g"><svg class="i" viewBox="0 0 24 24"><path d="M5 4.5h10.5a2 2 0 0 1 2 2v13H7a2 2 0 0 1-2-2V4.5z"/><path d="M5 17.5h12.5M9 4.5v12.5"/></svg></div><div class="tx"><b>Knowledge base</b><span>The right facts, prices and policies from your FAQs</span><div class="why">Your policy is that quotes hold until the stated date, so Earl confirmed it's valid until Friday.</div></div></div>
+        <div class="inrow src-row" data-src="r" onclick="toggleSrc('r')"><div class="ic r"><svg class="i" viewBox="0 0 24 24"><path d="M6 21V4M6 4h11l-2 3 2 3H6"/></svg></div><div class="tx"><b>Deal progression</b><span>Knows exactly where it sits in your sales process</span><div class="why">The deal is at 'quote sent, awaiting their decision', so Earl moved to close it.</div></div></div>
+        <div class="inrow src-row" data-src="n" onclick="toggleSrc('n')"><div class="ic n"><svg class="i" viewBox="0 0 24 24"><path d="M4 5.5h16v10H9.5L5.5 19V5.5z"/><path d="M8.5 9.5h7M8.5 12.5h4"/></svg></div><div class="tx"><b>Tone &amp; style</b><span>Your voice, and as brief or detailed as they were</span><div class="why">She wrote a short, friendly note, so Earl matched it: brief, warm, and signed off the way you do.</div></div></div>
+        <div class="src-hint">Click a source to see what it shaped →</div>
+      </div>
+      <div class="mock email">
+        <div class="mock-bar"><span class="mb-dot"></span><span class="mb-dot"></span><span class="mb-dot"></span><span class="mb-title">Conversation · Sarah at Brightside</span></div>
+        <div class="thread">
+          <div class="msg in">
+            <div class="msg-from">Sarah · Brightside Events</div>
+            <div class="msg-body">Hi Ben, quick one, is that quote still valid? And can you still do the extra airport pickup we talked about? Thanks, Sarah</div>
+          </div>
+          <span class="draftbtn standalone" onclick="reveal()"><svg class="i" viewBox="0 0 24 24"><path d="M4 20l1-4L16 5l3 3L8 19l-4 1z"/><path d="M14 7l3 3"/></svg> Draft with Earl</span>
+          <div class="build">
+            <div class="earl-panel">
+              <div class="ep-top">
+                <span class="conf"><span class="confdial"><i>88</i></span> Confident · 88</span>
+                <span class="hint">drafted in 1.2s</span>
+              </div>
+              <div class="ep-understood"><b>Earl understood:</b> she's asking whether the quote still holds, and if the airport pickup can still be added.</div>
+            </div>
+            <div class="msg out">
+              <div class="msg-from">Your reply · drafted by Earl</div>
+              <div class="msg-body"><span class="mk" data-src="n">Hi Sarah,</span><br><span class="mk" data-src="b">Great to hear from you again.</span> Yes, your quote is <span class="mk" data-src="g">valid until this Friday</span>, and we can add the <span class="mk" data-src="t">airport pickup you mentioned</span>.<br>As a returning customer I've kept the <span class="mk" data-src="b">same rate as your school trip last year</span>, so nothing changes on price.<br><span class="mk" data-src="r">Want me to lock it in?</span><br><span class="mk" data-src="n">Cheers, Ben</span></div>
+            </div>
+            <div class="readyline"><svg class="i" viewBox="0 0 24 24"><path d="M4 20l1-4L16 5l3 3L8 19l-4 1z"/><path d="M14 7l3 3"/></svg> Ready to send, or tweak in a click</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11 — PAYOFF: AUTO-PRIORITISATION -->
+  <section class="slide">
+    <div class="kicker">What you get · 2</div>
+    <h2>Focus on the deals that will actually close</h2>
+    <div class="sub">Earl ranks your whole pipeline by how likely each deal is to win and how much it's worth, so your time goes where it pays.</div>
+    <div class="body cols c2">
+      <ul class="feat">
+        <li><span class="dot g"></span><span><b>Likely first.</b> <span class="t">The deals most likely to close rise to the top.</span></span></li>
+        <li><span class="dot t"></span><span><b>Money-weighted.</b> <span class="t">A big maybe can rightly outrank a small sure thing.</span></span></li>
+        <li><span class="dot a"></span><span><b>No more guessing.</b> <span class="t">Work the best deal, not the loudest one.</span></span></li>
+      </ul>
+      <div class="mock">
+        <div class="mock-bar"><span class="mb-dot"></span><span class="mb-dot"></span><span class="mb-dot"></span><span class="mb-title">Pipeline · sorted by expected value</span></div>
+        <div class="mock-body" style="padding-top:6px;padding-bottom:6px">
+          <div class="prow">
+            <div class="dial" style="--v:88;--c:var(--teal)"><span>88</span></div>
+            <div class="pinfo"><div class="pname">Acme Events</div><div class="pmeta">$4,200 · returning</div></div>
+            <span class="demopill wp-ex">62% · $2.6k EV</span>
+          </div>
+          <div class="prow">
+            <div class="dial" style="--v:74;--c:var(--green)"><span>74</span></div>
+            <div class="pinfo"><div class="pname">Lakeside Hotel</div><div class="pmeta">$6,800 · new</div></div>
+            <span class="demopill wp-strong">33% · $2.2k EV</span>
+          </div>
+          <div class="prow">
+            <div class="dial" style="--v:58;--c:var(--amber)"><span>58</span></div>
+            <div class="pinfo"><div class="pname">Bright Tours</div><div class="pmeta">$1,900 · returning</div></div>
+            <span class="demopill wp-amber">21% · $0.4k EV</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12 — PAYOFF: NOTHING SLIPS -->
+  <section class="slide">
+    <div class="kicker">What you get · 3</div>
+    <h2>Never let a good deal go quiet</h2>
+    <div class="sub">The deals that die are the ones that slip through unnoticed. Earl catches them first.</div>
+    <div class="body cols c2">
+      <ul class="feat">
+        <li><span class="dot r"></span><span><b>A daily action list.</b> <span class="t">Every morning, the short list of deals that need you today, sorted by why.</span></span></li>
+        <li><span class="dot a"></span><span><b>Going-quiet alerts.</b> <span class="t">Warm deals cooling off get flagged before they're lost, not after.</span></span></li>
+      </ul>
+      <div class="mock">
+        <div class="mock-bar"><span class="mb-dot"></span><span class="mb-dot"></span><span class="mb-dot"></span><span class="mb-title">Today · 4 deals need you</span></div>
+        <div class="mock-body">
+          <div class="board">
+            <div>
+              <div class="blabel" style="color:var(--rust)">Slipping</div>
+              <div class="bcard"><b>Riverside School</b><div class="pmeta">Chased 3× · 9 days quiet</div></div>
+              <div class="bcard"><b>Delta Freight</b><div class="pmeta">Was warm · now silent</div></div>
+            </div>
+            <div>
+              <div class="blabel" style="color:#b9821f">Imminent</div>
+              <div class="bcard"><b>Tip Top Events</b><div class="pmeta">Decision in 5 days</div></div>
+              <div class="bcard"><b>Harbour Club</b><div class="pmeta">Unconfirmed · 6 days out</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="footnote">And it knows the difference between a customer ignoring you and one who's just replied about another job.</div>
+  </section>
+
+  <!-- 13 — PAYOFF: PERSONALISED FOLLOW-UPS (after 'nothing slips') -->
+  <section class="slide">
+    <div class="kicker">What you get · 4</div>
+    <h2>Then it writes your next move</h2>
+    <div class="sub">A deal going quiet doesn't just get flagged. Earl drafts the personalised next touch to win it back, referencing the actual deal, so it lands like a person, not a mail-merge.</div>
+    <div class="body cols c2">
+      <div>
+        <div class="inputs" style="margin-bottom:18px">
+          <div class="inrow src-row" data-src="r" onclick="toggleSrc('r')"><div class="ic r"><svg class="i" viewBox="0 0 24 24"><path d="M6 21V4M6 4h11l-2 3 2 3H6"/></svg></div><div class="tx"><b>Knows where the deal is</b><span>Quote sent, gone quiet, the right moment to nudge</span><div class="why">The deal is at 'quote sent, gone quiet', so Earl re-confirms the quote still stands.</div></div></div>
+          <div class="inrow src-row" data-src="t" onclick="toggleSrc('t')"><div class="ic"><svg class="i" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg></div><div class="tx"><b>References the specifics</b><span>Their event, their dates, the exact vehicles</span><div class="why">From the thread, Earl knows it's the gala on the 14th and they wanted three coaches, so it names all of it.</div></div></div>
+          <div class="inrow src-row" data-src="g" onclick="toggleSrc('g')"><div class="ic g"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3.2 2"/></svg></div><div class="tx"><b>Times it right</b><span>Nudges when it helps, not on a blind schedule</span><div class="why">It's the right moment to act, so Earl adds gentle urgency by offering to hold the vehicles.</div></div></div>
+          <div class="src-hint">Write the draft, then click a source →</div>
+        </div>
+        <div class="notthis">
+          <span class="nl">Not this</span>
+          <span class="generic">"Hi, did you get your quote? Just following up."</span>
+        </div>
+      </div>
+      <div class="mock email">
+        <div class="mock-bar"><span class="mb-dot"></span><span class="mb-dot"></span><span class="mb-dot"></span><span class="mb-title">New follow-up · James at Riverside</span></div>
+        <div style="padding:15px 16px 6px">
+          <div class="ctx"><svg class="i" viewBox="0 0 24 24"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.8 1.8H4.2L6 16.5z"/><path d="M10 21h4"/></svg> Riverside School has gone quiet · 9 days</div>
+          <span class="draftbtn standalone" onclick="reveal()"><svg class="i" viewBox="0 0 24 24"><path d="M4 20l1-4L16 5l3 3L8 19l-4 1z"/><path d="M14 7l3 3"/></svg> Write follow-up with Earl</span>
+        </div>
+        <div class="build">
+          <div class="email-head">
+            <div class="eh-row"><span class="eh-k">To</span><span class="eh-v">james@riversideschool.edu</span></div>
+            <div class="eh-row"><span class="eh-k">Subject</span><span class="eh-v">Still keen for the 14th?</span></div>
+          </div>
+          <div class="mock-body" style="padding-top:15px;padding-bottom:14px">
+            <div class="dl">Hi James,</div>
+            <div class="dl">Hope the <span class="mk" data-src="t">gala</span> planning is coming together. You mentioned <span class="mk" data-src="t">three coaches for the 14th</span>.</div>
+            <div class="dl"><span class="mk" data-src="r">The quote we sent still stands</span>, and I can <span class="mk" data-src="g">hold those vehicles until Friday</span>.</div>
+            <div class="dl">Want me to pencil them in?</div>
+            <div class="dl muted">Cheers, Ben</div>
+            <div class="toolbar">
+              <span class="tbtools"><svg class="i" viewBox="0 0 24 24"><path d="M8 12l5-5a3 3 0 0 1 4 4l-7 7a5 5 0 0 1-7-7l6-6"/></svg><svg class="i" viewBox="0 0 24 24"><path d="M5 7h14M5 12h14M5 17h9"/></svg></span>
+              <span class="send">Send</span>
+            </div>
+          </div>
+          <div class="earl-strip"><svg class="i" viewBox="0 0 24 24"><path d="M4 20l1-4L16 5l3 3L8 19l-4 1z"/><path d="M14 7l3 3"/></svg> Built from their event, dates and where the deal stands</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 14 — INSIGHTS / THE DATA -->
+  <section class="slide">
+    <div class="kicker">Rentabus, by the numbers</div>
+    <h2>The shape of our whole business</h2>
+    <div class="sub">Earl isn't a black box. The same engine that ranks our deals shows what's winning, what isn't, and where the money is.</div>
+    <div class="body">
+      <div class="mock">
+        <div class="mock-bar"><span class="mb-dot"></span><span class="mb-dot"></span><span class="mb-dot"></span><span class="mb-title">Insights · how Rentabus actually runs</span></div>
+        <div class="mock-body dash">
+          <div class="noticed"><svg class="i" viewBox="0 0 24 24"><path d="M13 3L5 13h6l-1 8 8-10h-6l1-8z"/></svg> Earl noticed: 3 warm deals worth $9.4k have gone quiet this week, and corporate trips close 2.3× more than airport runs.</div>
+          <div class="dash-stats4">
+            <div class="dstat"><div class="dv">13%</div><div class="dl">Win rate</div></div>
+            <div class="dstat"><div class="dv">2.3×</div><div class="dl">Repeat lift</div></div>
+            <div class="dstat"><div class="dv">9d</div><div class="dl">Median to close</div></div>
+            <div class="dstat"><div class="dv">$48k</div><div class="dl">Live pipeline</div></div>
+          </div>
+          <div class="dash-grid2">
+            <div class="panel">
+              <div class="panel-t">The funnel</div>
+              <div class="funnel">
+                <div class="frow"><span class="flbl">Enquiries</span><div class="ftrack"><div class="ffill" style="width:100%;background:var(--inkSoft)"></div></div><span class="fval">1,240</span></div>
+                <div class="frow"><span class="flbl">Quoted</span><div class="ftrack"><div class="ffill" style="width:55%"></div></div><span class="fval">680</span></div>
+                <div class="frow"><span class="flbl">Won</span><div class="ftrack"><div class="ffill" style="width:14%;background:var(--teal)"></div></div><span class="fval">88</span></div>
+                <div class="frow"><span class="flbl">Lost</span><div class="ftrack"><div class="ffill" style="width:48%;background:var(--rust)"></div></div><span class="fval">592</span></div>
+              </div>
+              <div class="winrate-big"><span class="wb">13%</span><span class="wl">win rate · won ÷ decided</span></div>
+            </div>
+            <div class="panel cohort">
+              <div class="panel-t">Win rate by purpose</div>
+              <div class="crow"><div class="clbl">Corporate</div><div class="ctrack"><div class="cfill" style="width:84%"></div></div><div class="cpct">31%</div></div>
+              <div class="crow"><div class="clbl">Wedding</div><div class="ctrack"><div class="cfill" style="width:52%"></div></div><div class="cpct">19%</div></div>
+              <div class="crow"><div class="clbl">School</div><div class="ctrack"><div class="cfill" style="width:38%;background:var(--amber)"></div></div><div class="cpct">14%</div></div>
+              <div class="crow"><div class="clbl">Sports</div><div class="ctrack"><div class="cfill" style="width:46%"></div></div><div class="cpct">17%</div></div>
+              <div class="crow"><div class="clbl">Airport</div><div class="ctrack"><div class="cfill" style="width:24%;background:var(--rust)"></div></div><div class="cpct">9%</div></div>
+            </div>
+            <div class="panel">
+              <div class="panel-t">More replies, more wins</div>
+              <div class="chartbars">
+                <div class="cbar" style="height:13%"></div>
+                <div class="cbar" style="height:24%"></div>
+                <div class="cbar" style="height:61%"></div>
+                <div class="cbar" style="height:100%"></div>
+              </div>
+              <div class="barlabels"><span>1 msg</span><span>2-3</span><span>4-6</span><span>7+</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 15 — THE BOTTOM LINE -->
+  <section class="slide center">
+    <div class="kicker">The bottom line</div>
+    <div class="big-quote">Win more deals.<br>Be more responsive.<br><span class="accent">Do less work.</span></div>
+    <div class="sub">Earl turns the inbox we already have into Rentabus’s sharpest salesperson — already running on thousands of our real deals.</div>
+    <div class="title-meta">
+      <span class="pill solid">Live at Rentabus</span>
+    </div>
+  </section>
+
+  <!-- 16 — APPENDIX: ARCHITECTURE -->
+  <section class="slide">
+    <div class="kicker">Appendix · For the technically curious</div>
+    <h2>How Earl is built</h2>
+    <div class="sub">A quick look under the hood. One lightweight service, your inbox, and two AI models doing the heavy lifting. Data flows up, from your inbox to the screens you use.</div>
+    <div class="body">
+      <div class="arch">
+        <div class="alayer">
+          <div class="alabel">Surfaces</div>
+          <div class="arow">
+            <div class="anode"><div class="ant">Web app</div><div class="and">heyearl.ai · Today · Pipeline · Insights</div></div>
+            <div class="anode"><div class="ant">Browser extension</div><div class="and">Drafts inside the inbox</div></div>
+          </div>
+        </div>
+        <div class="aarrow">▲</div>
+        <div class="alayer">
+          <div class="alabel">Intelligence</div>
+          <div class="arow">
+            <div class="anode accent"><div class="ant">Win predictor + health scoring</div><div class="and">Calibrated from your won-and-lost history</div></div>
+            <div class="anode accent"><div class="ant">Customer profiles + knowledge base</div><div class="and">What wins, and the facts to answer with</div></div>
+          </div>
+        </div>
+        <div class="aarrow">▲</div>
+        <div class="alayer">
+          <div class="alabel">Ingestion</div>
+          <div class="arow">
+            <div class="anode dark"><div class="ant">Fetch</div><div class="and">Reads every thread</div></div>
+            <div class="anode dark"><div class="ant">Classify</div><div class="and">Enquiry, quote, supplier noise</div></div>
+            <div class="anode dark"><div class="ant">Group into deals</div><div class="and">One deal per opportunity</div></div>
+          </div>
+        </div>
+        <div class="aarrow">▲</div>
+        <div class="alayer">
+          <div class="alabel">Sources</div>
+          <div class="arow">
+            <div class="anode"><div class="ant">Your inbox</div><div class="and">The source of truth</div></div>
+            <div class="anode"><div class="ant">Gemini</div><div class="and">Reads and analyses your history</div></div>
+            <div class="anode"><div class="ant">Claude</div><div class="and">Synthesis and drafting</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="footnote">Runs on a single small cloud instance · no GPU · your data stays yours</div>
+  </section>
+
+</div>
+
+<div class="chrome">
+  <div class="brand"><span class="blip"></span>Earl</div>
+  <div class="nav">
+    <div class="arrow" id="prev">‹</div>
+    <div class="dots" id="dots"></div>
+    <div class="arrow" id="next">›</div>
+    <div class="counter" id="counter"></div>
+  </div>
+</div>
+
+<script>
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const dotsWrap = document.getElementById('dots');
+  const counter = document.getElementById('counter');
+  let i = 0;
+  slides.forEach((_, n) => {
+    const d = document.createElement('div');
+    d.className = 'nd-dot' + (n===0?' on':'');
+    d.onclick = () => go(n);
+    dotsWrap.appendChild(d);
+  });
+  const dots = Array.from(document.querySelectorAll('.nd-dot'));
+  function buildsOf(s){ return Array.from(s.querySelectorAll('.build')); }
+  function rowsOf(s){ return Array.from(s.querySelectorAll('.src-row')); }
+  function resetSlide(s){
+    buildsOf(s).forEach(b => b.classList.remove('show'));
+    s.querySelectorAll('.src-row').forEach(r => r.classList.remove('active'));
+    s.querySelectorAll('.mk').forEach(m => m.classList.remove('on'));
+  }
+  function go(n){
+    i = Math.max(0, Math.min(slides.length-1, n));
+    slides.forEach(resetSlide);
+    slides.forEach((s,k)=>s.classList.toggle('active', k===i));
+    dots.forEach((d,k)=>d.classList.toggle('on', k===i));
+    counter.textContent = String(i+1).padStart(2,'0') + ' / ' + String(slides.length).padStart(2,'0');
+  }
+  // Reveal the drafted reply (the .build block). Used by the "Draft with Earl" button.
+  function reveal(){ buildsOf(slides[i]).forEach(b => b.classList.add('show')); }
+  // Turn a single information source on/off: highlights its reply spans,
+  // marks its row active (which shows the explanation). Revealing a source
+  // also reveals the draft, so clicking a heading first still works.
+  function setSrc(src, on){
+    const s = slides[i];
+    if(on) buildsOf(s).forEach(b => b.classList.add('show'));
+    const row = s.querySelector('.src-row[data-src="'+src+'"]');
+    if(row) row.classList.toggle('active', on);
+    s.querySelectorAll('.mk[data-src="'+src+'"]').forEach(m => m.classList.toggle('on', on));
+  }
+  function toggleSrc(src){
+    const row = slides[i].querySelector('.src-row[data-src="'+src+'"]');
+    setSrc(src, !(row && row.classList.contains('active')));
+  }
+  // Forward: reveal the draft, then light up each source in turn, then next slide.
+  function next(){
+    const s = slides[i];
+    const hb = buildsOf(s).find(b => !b.classList.contains('show'));
+    if(hb){ hb.classList.add('show'); return; }
+    const nr = rowsOf(s).find(r => !r.classList.contains('active'));
+    if(nr){ setSrc(nr.dataset.src, true); return; }
+    go(i+1);
+  }
+  // Backward: undo sources, then hide the draft, then previous slide.
+  function prev(){
+    const s = slides[i];
+    const active = rowsOf(s).filter(r => r.classList.contains('active'));
+    if(active.length){ setSrc(active[active.length-1].dataset.src, false); return; }
+    const shown = buildsOf(s).filter(b => b.classList.contains('show'));
+    if(shown.length){ shown[shown.length-1].classList.remove('show'); return; }
+    go(i-1);
+  }
+  document.getElementById('next').onclick = next;
+  document.getElementById('prev').onclick = prev;
+  document.addEventListener('keydown', e => {
+    if(['ArrowRight','ArrowDown',' ','PageDown'].includes(e.key)){e.preventDefault();next();}
+    if(['ArrowLeft','ArrowUp','PageUp'].includes(e.key)){e.preventDefault();prev();}
+    if(e.key==='Home')go(0); if(e.key==='End')go(slides.length-1);
+    if(e.key.toLowerCase()==='f'){ if(!document.fullscreenElement)document.documentElement.requestFullscreen(); else document.exitFullscreen(); }
+  });
+  go(0);
+</script>
+</body>
+</html>
